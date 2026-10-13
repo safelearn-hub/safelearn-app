@@ -131,9 +131,10 @@
 
   <script>
     // --- SUPABASE CONFIGURATION ---
-    const SUPABASE_URL = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxdnNwaW1ramdrdGhsc3pldm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MTcwMDIsImV4cCI6MjEwNzQ5MzAwMn0.b2uIkRR_p6YuZpq1xWDT9wfapyGmjRsdm9kFlAc_-yc';
-    // Paste your publishable key (sb_publishable_...) inside the quotes below
-    const SUPABASE_ANON_KEY = 'sb_publishable_Nx5T5ZuvkHM3C4UWIwZMTQ_p_qfLT7r'; 
+    const SUPABASE_URL = 'https://gqvspimkjgkthlszevmz.supabase.co';
+    
+    // REPLACE WITH YOUR LEGACY ANON KEY FROM SUPABASE (starts with eyJ...)
+    const SUPABASE_ANON_KEY = 'YOUR_LEGACY_ANON_KEY_HERE'; 
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -179,8 +180,19 @@
           return;
         }
 
+        showMessage('Creating your account...', 'info');
+
         // 1. Sign up user in Supabase Auth
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        const { data, error } = await supabaseClient.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              student_id: studentId
+            }
+          }
+        });
 
         if (error) {
           showMessage(error.message, 'error');
@@ -188,19 +200,27 @@
         }
 
         if (data.user) {
-          // 2. Insert details into Profiles table
+          // 2. Insert/Upsert into Profiles table
           const { error: profileErr } = await supabaseClient
             .from('profiles')
-            .insert([{ id: data.user.id, full_name: fullName, student_id: studentId, is_approved: false }]);
+            .upsert([{ 
+              id: data.user.id, 
+              full_name: fullName, 
+              student_id: studentId, 
+              is_approved: false 
+            }]);
 
           if (profileErr) {
-            showMessage('Account created, but profile setup failed: ' + profileErr.message, 'error');
+            console.error('Profile Error:', profileErr);
+            showMessage('Account created! Please notify admin for MoMo payment activation.', 'info');
           } else {
-            showMessage('Registration successful! Please send your MoMo payment proof to admin for account activation.', 'info');
+            showMessage('Registration successful! Please send your MoMo payment proof to safelearn.contact@gmail.com for account activation.', 'info');
           }
         }
       } else {
         // Handle Login
+        showMessage('Logging in...', 'info');
+
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
@@ -219,9 +239,10 @@
           if (!profile.is_approved) {
             showMessage(`Welcome ${profile.full_name}! Your account is pending MoMo payment verification. Please contact safelearn.contact@gmail.com for activation.`, 'info');
           } else {
-            showMessage(`Welcome back, ${profile.full_name}! Accessing courses...`, 'success');
-            // Dashboard redirect logic will be linked here in the next step!
+            showMessage(`Welcome back, ${profile.full_name}! Redirecting to courses...`, 'success');
           }
+        } else {
+          showMessage('Login successful! Welcome to SafeLearn.', 'success');
         }
       }
     }

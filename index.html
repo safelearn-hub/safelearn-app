@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeLearn Portal | UENR Courses</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #002B49; /* Deep UENR Navy */
+      --accent: #EAAA00;  /* Gold Accent */
+      --bg: #F4F6F8;
+      --text: #1E293B;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      padding: 1.5rem 0;
+      text-align: center;
+      border-bottom: 4px solid var(--accent);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; }
+    header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.85; }
+    .container {
+      background: white;
+      width: 90%;
+      max-width: 420px;
+      margin: 2rem auto;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    h2 { margin-top: 0; color: var(--primary); font-size: 1.4rem; text-align: center; }
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover { background-color: #001f35; }
+    .toggle-link {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      color: #64748B;
+    }
+    .toggle-link a { color: var(--primary); font-weight: bold; text-decoration: none; }
+    #message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      display: none;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    .success { background-color: #DEF7EC; color: #03543F; }
+    .error { background-color: #FDE8E8; color: #9B1C1C; }
+    .info { background-color: #FEF08A; color: #713F12; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>SAFELEARN</h1>
+    <p>UENR Course Video Portal</p>
+  </header>
+
+  <div class="container">
+    <h2 id="form-title">Student Login</h2>
+    
+    <div id="auth-form">
+      <div class="form-group" id="name-group" style="display: none;">
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" placeholder="e.g. Emmanuel Mensah">
+      </div>
+
+      <div class="form-group" id="student-id-group" style="display: none;">
+        <label for="student_id">Student Reference / Index No.</label>
+        <input type="text" id="student_id" placeholder="e.g. UENR2024102">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="student@gmail.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+
+      <button id="submit-btn" onclick="handleAuth()">Login to Portal</button>
+      
+      <div class="toggle-link">
+        <span id="toggle-text">Need an account?</span> 
+        <a href="#" id="toggle-btn" onclick="toggleMode()">Register here</a>
+      </div>
+    </div>
+
+    <div id="message"></div>
+  </div>
+
+  <script>
+    // --- SUPABASE CONFIGURATION ---
+    const SUPABASE_URL = 'https://gqvspimkjgkthlszevmz.supabase.co';
+    // Paste your publishable key (sb_publishable_...) inside the quotes below
+    const SUPABASE_ANON_KEY = 'YOUR_PUBLISHABLE_KEY_HERE'; 
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isSignUp = false;
+
+    function toggleMode() {
+      isSignUp = !isSignUp;
+      document.getElementById('form-title').innerText = isSignUp ? 'Student Registration' : 'Student Login';
+      document.getElementById('submit-btn').innerText = isSignUp ? 'Create Account' : 'Login to Portal';
+      document.getElementById('name-group').style.display = isSignUp ? 'block' : 'none';
+      document.getElementById('student-id-group').style.display = isSignUp ? 'block' : 'none';
+      document.getElementById('toggle-text').innerText = isSignUp ? 'Already registered?' : 'Need an account?';
+      document.getElementById('toggle-btn').innerText = isSignUp ? 'Login here' : 'Register here';
+      hideMessage();
+    }
+
+    function showMessage(text, type) {
+      const msgBox = document.getElementById('message');
+      msgBox.innerText = text;
+      msgBox.className = type;
+      msgBox.style.display = 'block';
+    }
+
+    function hideMessage() {
+      document.getElementById('message').style.display = 'none';
+    }
+
+    async function handleAuth() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      
+      if (!email || !password) {
+        showMessage('Please fill in all required fields.', 'error');
+        return;
+      }
+
+      if (isSignUp) {
+        const fullName = document.getElementById('full_name').value.trim();
+        const studentId = document.getElementById('student_id').value.trim();
+
+        if (!fullName || !studentId) {
+          showMessage('Full Name and Student ID are required for registration.', 'error');
+          return;
+        }
+
+        // 1. Sign up user in Supabase Auth
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+        if (error) {
+          showMessage(error.message, 'error');
+          return;
+        }
+
+        if (data.user) {
+          // 2. Insert details into Profiles table
+          const { error: profileErr } = await supabaseClient
+            .from('profiles')
+            .insert([{ id: data.user.id, full_name: fullName, student_id: studentId, is_approved: false }]);
+
+          if (profileErr) {
+            showMessage('Account created, but profile setup failed: ' + profileErr.message, 'error');
+          } else {
+            showMessage('Registration successful! Please send your MoMo payment proof to admin for account activation.', 'info');
+          }
+        }
+      } else {
+        // Handle Login
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          showMessage(error.message, 'error');
+          return;
+        }
+
+        // Check approval status in profiles table
+        const { data: profile, error: pError } = await supabaseClient
+          .from('profiles')
+          .select('is_approved, full_name')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profile) {
+          if (!profile.is_approved) {
+            showMessage(`Welcome ${profile.full_name}! Your account is pending MoMo payment verification. Please contact safelearn.contact@gmail.com for activation.`, 'info');
+          } else {
+            showMessage(`Welcome back, ${profile.full_name}! Accessing courses...`, 'success');
+            // Dashboard redirect logic will be linked here in the next step!
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>

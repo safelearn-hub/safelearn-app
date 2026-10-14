@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafeLearn Portal | UENR Courses</title>
+  <title>SafeLearn | Simplifying complex courses for academic excellence</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --primary: #002B49; /* Deep UENR Navy */
+      --primary: #002B49; /* Deep Professional Navy */
       --accent: #EAAA00;  /* Gold Accent */
-      --bg: #F4F6F8;
+      --bg: #F8FAFC;
       --text: #1E293B;
+      --card-bg: #FFFFFF;
     }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -24,116 +26,214 @@
     }
     header {
       width: 100%;
-      background-color: var(--primary);
+      background: linear-gradient(135deg, #002B49 0%, #001A2C 100%);
       color: white;
-      padding: 1.5rem 0;
+      padding: 2rem 1rem;
       text-align: center;
       border-bottom: 4px solid var(--accent);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
-    header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; }
-    header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.85; }
-    .container {
-      background: white;
-      width: 90%;
-      max-width: 420px;
-      margin: 2rem auto;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 1.5px; font-weight: 800; }
+    header p { margin: 8px 0 0; font-size: 0.95rem; opacity: 0.9; letter-spacing: 0.5px; font-style: italic; color: var(--accent); }
+    
+    .main-wrapper {
+      width: 100%;
+      max-width: 480px;
+      margin: 2.5rem 1rem;
+      box-sizing: border-box;
     }
-    h2 { margin-top: 0; color: var(--primary); font-size: 1.4rem; text-align: center; }
-    .form-group { margin-bottom: 1.2rem; }
-    label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
+
+    .card {
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 43, 73, 0.08);
+      border: 1px solid #E2E8F0;
+    }
+
+    h2 { margin-top: 0; color: var(--primary); font-size: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+    
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; color: #475569; }
     input {
       width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #CBD5E1;
-      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
       box-sizing: border-box;
       font-size: 1rem;
+      transition: all 0.2s ease;
     }
-    input:focus { outline: none; border-color: var(--primary); }
-    button {
+    input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 43, 73, 0.1); }
+    
+    .btn-primary {
       width: 100%;
       background-color: var(--primary);
       color: white;
       border: none;
-      padding: 0.85rem;
+      padding: 0.95rem;
       font-size: 1rem;
-      font-weight: bold;
-      border-radius: 6px;
+      font-weight: 700;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, transform 0.1s ease;
+      margin-top: 0.5rem;
     }
-    button:hover { background-color: #001f35; }
+    .btn-primary:hover { background-color: #001f35; }
+    .btn-primary:active { transform: scale(0.99); }
+
     .toggle-link {
       text-align: center;
-      margin-top: 1rem;
-      font-size: 0.88rem;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
       color: #64748B;
     }
     .toggle-link a { color: var(--primary); font-weight: bold; text-decoration: none; }
+    .toggle-link a:hover { text-decoration: underline; }
+
     #message {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      border-radius: 6px;
+      margin-top: 1.2rem;
+      padding: 0.9rem;
+      border-radius: 8px;
       display: none;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       text-align: center;
+      font-weight: 500;
     }
-    .success { background-color: #DEF7EC; color: #03543F; }
-    .error { background-color: #FDE8E8; color: #9B1C1C; }
-    .info { background-color: #FEF08A; color: #713F12; }
+    .success { background-color: #DEF7EC; color: #03543F; border: 1px solid #BCF0DA; }
+    .error { background-color: #FDE8E8; color: #9B1C1C; border: 1px solid #F8B4B4; }
+    .info { background-color: #FEF9C3; color: #713F12; border: 1px solid #FEF08A; }
+
+    /* Modal Pop-up Styling */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem 2rem;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      border-top: 6px solid var(--accent);
+      animation: modalPopup 0.3s ease-out;
+    }
+    @keyframes modalPopup {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-box h3 { color: var(--primary); margin-top: 0; font-size: 1.4rem; font-weight: 800; }
+    .modal-box p { color: var(--text); font-size: 0.98rem; line-height: 1.6; margin: 1rem 0 1.8rem; }
+
+    /* Student Course Dashboard View */
+    #dashboard-view { display: none; }
+    .course-card {
+      background: #F1F5F9;
+      border-left: 5px solid var(--accent);
+      padding: 1.2rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .course-card h4 { margin: 0 0 5px; color: var(--primary); font-size: 1.1rem; }
+    .course-card p { margin: 0; font-size: 0.88rem; color: #64748B; }
+    .logout-btn {
+      background: #E2E8F0;
+      color: #334155;
+      margin-top: 1.5rem;
+    }
+    .logout-btn:hover { background: #CBD5E1; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>SAFELEARN</h1>
-    <p>UENR Course Video Portal</p>
+    <p>Simplifying complex courses for academic excellence</p>
   </header>
 
-  <div class="container">
-    <h2 id="form-title">Student Login</h2>
+  <div class="main-wrapper">
     
-    <div id="auth-form">
-      <div class="form-group" id="name-group" style="display: none;">
-        <label for="full_name">Full Name</label>
-        <input type="text" id="full_name" placeholder="e.g. Emmanuel Mensah">
-      </div>
-
-      <div class="form-group" id="student-id-group" style="display: none;">
-        <label for="student_id">Student Reference / Index No.</label>
-        <input type="text" id="student_id" placeholder="e.g. UENR2024102">
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="student@gmail.com" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="••••••••" required>
-      </div>
-
-      <button id="submit-btn" onclick="handleAuth()">Login to Portal</button>
+    <!-- AUTHENTICATION CARD -->
+    <div class="card" id="auth-card">
+      <h2 id="form-title">Student Login</h2>
       
-      <div class="toggle-link">
-        <span id="toggle-text">Need an account?</span> 
-        <a href="#" id="toggle-btn" onclick="toggleMode()">Register here</a>
+      <div id="auth-form">
+        <div class="form-group" id="name-group" style="display: none;">
+          <label for="full_name">Full Name</label>
+          <input type="text" id="full_name" placeholder="e.g. Emmanuel Mensah">
+        </div>
+
+        <div class="form-group" id="student-id-group" style="display: none;">
+          <label for="student_id">Student ID / Reference Number</label>
+          <input type="text" id="student_id" placeholder="e.g. SL2024102">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="student@gmail.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+
+        <button class="btn-primary" id="submit-btn" onclick="handleAuth()">Login to Portal</button>
+        
+        <div class="toggle-link">
+          <span id="toggle-text">Need an account?</span> 
+          <a href="#" id="toggle-btn" onclick="toggleMode()">Register here</a>
+        </div>
       </div>
+
+      <div id="message"></div>
     </div>
 
-    <div id="message"></div>
+    <!-- STUDENT DASHBOARD VIEW (Shown when approved & logged in) -->
+    <div class="card" id="dashboard-view">
+      <h2 id="welcome-heading">Welcome!</h2>
+      <p style="text-align: center; color: #64748B; margin-top: -10px; margin-bottom: 1.5rem;">Your account is verified and active.</p>
+      
+      <h3 style="color: var(--primary); font-size: 1.1rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">Enrolled Courses</h3>
+      
+      <div class="course-card">
+        <h4>Advanced Engineering Mathematics</h4>
+        <p>Video modules, step-by-step problem solving unlocked.</p>
+      </div>
+
+      <div class="course-card">
+        <h4>Data Structures & Algorithms</h4>
+        <p>Full curriculum recordings and code guides.</p>
+      </div>
+
+      <button class="btn-primary logout-btn" onclick="handleLogout()">Logout</button>
+    </div>
+
+  </div>
+
+  <!-- SUCCESS / INFO MODAL POP-UP -->
+  <div id="modal-overlay">
+    <div class="modal-box">
+      <h3 id="modal-title">Notice</h3>
+      <p id="modal-message">Message text goes here.</p>
+      <button class="btn-primary" onclick="closeModal()">Got It</button>
+    </div>
   </div>
 
   <script>
     // --- SUPABASE CONFIGURATION ---
     const SUPABASE_URL = 'https://gqvspimkjgkthlszevmz.supabase.co';
-    
-    // PASTE YOUR LEGACY ANON KEY HERE (starts with eyJ...)
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxdnNwaW1ramdrdGhsc3pldm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MTcwMDIsImV4cCI6MjEwNzQ5MzAwMn0.b2uIkRR_p6YuZpq1xWDT9wfapyGmjRsdm9kFlAc_-yc'; 
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -162,6 +262,19 @@
       document.getElementById('message').style.display = 'none';
     }
 
+    function showModal(title, text) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-message').innerText = text;
+      document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').style.display = 'none';
+      if (isSignUp) {
+        toggleMode(); 
+      }
+    }
+
     async function handleAuth() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
@@ -182,16 +295,10 @@
 
         showMessage('Creating your account...', 'info');
 
-        // 1. Sign up user in Supabase Auth
         const { data, error } = await supabaseClient.auth.signUp({ 
           email, 
           password,
-          options: {
-            data: {
-              full_name: fullName,
-              student_id: studentId
-            }
-          }
+          options: { data: { full_name: fullName, student_id: studentId } }
         });
 
         if (error) {
@@ -200,7 +307,6 @@
         }
 
         if (data.user) {
-          // 2. Insert/Upsert into Profiles table
           const { error: profileErr } = await supabaseClient
             .from('profiles')
             .upsert([{ 
@@ -210,15 +316,10 @@
               is_approved: false 
             }]);
 
-          if (profileErr) {
-            console.error('Profile Error:', profileErr);
-            showMessage('Account created! Please notify admin for MoMo payment activation.', 'info');
-          } else {
-            showMessage('Registration successful! Please send your MoMo payment proof to safelearn.contact@gmail.com for account activation.', 'info');
-          }
+          hideMessage();
+          showModal('Registration Successful! 🎉', 'Your account has been created successfully. Please send your MoMo payment proof to safelearn.contact@gmail.com for activation.');
         }
       } else {
-        // Handle Login
         showMessage('Logging in...', 'info');
 
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -228,7 +329,6 @@
           return;
         }
 
-        // Check approval status in profiles table
         const { data: profile, error: pError } = await supabaseClient
           .from('profiles')
           .select('is_approved, full_name')
@@ -237,14 +337,26 @@
 
         if (profile) {
           if (!profile.is_approved) {
-            showMessage(`Welcome ${profile.full_name}! Your account is pending MoMo payment verification. Please contact safelearn.contact@gmail.com for activation.`, 'info');
+            hideMessage();
+            showModal('Account Pending Verification ⏳', `Welcome ${profile.full_name}! Your account is currently awaiting MoMo payment verification. Please check back once approved.`);
           } else {
-            showMessage(`Welcome back, ${profile.full_name}! Redirecting to courses...`, 'success');
+            document.getElementById('auth-card').style.display = 'none';
+            document.getElementById('welcome-heading').innerText = `Welcome back, ${profile.full_name}!`;
+            document.getElementById('dashboard-view').style.display = 'block';
           }
         } else {
           showMessage('Login successful! Welcome to SafeLearn.', 'success');
         }
       }
+    }
+
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      document.getElementById('dashboard-view').style.display = 'none';
+      document.getElementById('auth-card').style.display = 'block';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      hideMessage();
     }
   </script>
 </body>
